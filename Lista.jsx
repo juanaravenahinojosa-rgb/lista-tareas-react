@@ -3,8 +3,13 @@ import { useEffect, useState } from "react";
 function Lista() {
   const [texto, setTexto] = useState("");
   const [items, setItems] = useState(() => {
-    const guardados = localStorage.getItem("miLista");
-    return guardados ? JSON.parse(guardados) : [];
+    try {
+      const guardados = localStorage.getItem("miLista");
+      const data = guardados ? JSON.parse(guardados) : [];
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      return [];
+    }
   });
 
   useEffect(() => {
@@ -13,7 +18,7 @@ function Lista() {
 
   function agregarItem() {
     if (texto.trim() === "") return;
-    setItems([...items, { texto: texto, completado: false }]);
+    setItems([...items, { texto, completado: false }]);
     setTexto("");
   }
 
@@ -38,7 +43,7 @@ function Lista() {
   }
 
   function limpiarTodo() {
-    if (confirm("¿Seguro que quieres eliminar todo?")) {
+    if (window.confirm("¿Seguro que quieres eliminar todo?")) {
       setItems([]);
     }
   }
@@ -72,13 +77,8 @@ function Lista() {
       <p>Completadas: {completadas}</p>
       <p>Pendientes: {items.length - completadas}</p>
 
-      <button onClick={limpiarCompletadas}>
-        Limpiar completadas
-      </button>
-
-      <button onClick={limpiarTodo}>
-        Eliminar todo
-      </button>
+      <button onClick={limpiarCompletadas}>Limpiar completadas</button>
+      <button onClick={limpiarTodo}>Eliminar todo</button>
 
       {items.length === 0 && <p>No hay tareas aún</p>}
 
@@ -94,10 +94,7 @@ function Lista() {
             >
               {item.texto}
             </span>
-
-            <button onClick={() => borrarItem(index)}>
-              Eliminar
-            </button>
+            <button onClick={() => borrarItem(index)}>Eliminar</button>
           </li>
         ))}
       </ul>
